@@ -1,0 +1,10 @@
+
+tests/__pycache__/*
+test-results/*
+.pytest_cache
+.html
+screenshots/
+/__pycache__
+*.json
+*.css
+*.html
