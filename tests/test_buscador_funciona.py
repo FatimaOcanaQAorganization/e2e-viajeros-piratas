@@ -21,11 +21,11 @@ def test_buscador_funciona(page: Page):
     # Ejecutar búsqueda con ENTER (NO CLICK)
     buscador.press("Enter")
 
-    # Comprobación: ya no estamos en la home
-    expect(page).not_to_have_url("https://www.viajerospiratas.es/")
+    # Comprobación: no compruebes que no esta en la home, sino que cuando buscas roma te aparece la url de resultados de roma, si estas haciendo busqueda valida, la url debe ser valida
+    expect(page).to_have_url("https://www.viajerospiratas.es/busqueda/roma")
 
 
-
+# todo esto esta doble lo puedes borrar
 from playwright.sync_api import Page, expect
 
 from playwright.sync_api import Page, expect
