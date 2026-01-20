@@ -1,15 +1,16 @@
+name: Playwright Tests
 
 on:
   push:
   schedule:
-    - cron: '0 0 * * 0'  # Este cron ejecuta el workflow todos los domingos a medianoche UTC
-  workflow_dispatch:  # Permite ejecutar el flujo de trabajo manualmente desde la interfaz de GitHub
-
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
-  test:
+  test-desktop:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
 
@@ -23,26 +24,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Ensure browsers are installed
+    - name: Install Playwright browsers
       run: python -m playwright install --with-deps
 
     - name: Run tests on desktop
       run: |
-        pytest --capture=tee-sys --html=resultsdesktop.html --self-contained-html --device="Desktop Chrome" --video=on
+        pytest --capture=tee-sys --html=results-desktop.html --self-contained-html
 
-    - name: Upload Playwright report (Desktop)
+    - name: Upload Desktop Report
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report-desktop
-        path: resultsdesktop.html
-
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-videos-traces
-        path: test-results/
+        name: report-desktop
+        path: results-desktop.html
 
 
   test-mobile:
@@ -62,17 +56,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Ensure browsers are installed
+    - name: Install Playwright browsers
       run: python -m playwright install --with-deps
 
-    - name: Run tests on mobile
+    - name: Run tests on mobile (iPhone 12)
       run: |
-        pytest --capture=tee-sys --html=resultsmobile.html --self-contained-html
+        pytest --capture=tee-sys --html=results-mobile.html --self-contained-html --device="iPhone 12"
 
-    - name: Upload Playwright report (Mobile)
+    - name: Upload Mobile Report
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report-mobile
-        path: resultsmobile.html
-
+        name: report-mobile
+        path: results-mobile.html
