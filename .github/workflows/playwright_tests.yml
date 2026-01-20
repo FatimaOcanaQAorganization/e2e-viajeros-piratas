@@ -43,3 +43,36 @@ jobs:
       with:
         name: playwright-videos-traces
         path: test-results/
+
+
+  test-mobile:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Ensure browsers are installed
+      run: python -m playwright install --with-deps
+
+    - name: Run tests on mobile
+      run: |
+        pytest --capture=tee-sys --html=resultsmobile.html --self-contained-html
+
+    - name: Upload Playwright report (Mobile)
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-mobile
+        path: resultsmobile.html
+
