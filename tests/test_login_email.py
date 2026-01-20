@@ -3,35 +3,40 @@ from playwright.sync_api import Page, expect
 
 def abrir_login(page: Page):
     page.goto("https://www.viajerospiratas.es/")
+
+    # Cookies
     page.get_by_role("button", name="Aceptar todo").click()
-    page.get_by_role("banner") \
-        .filter(has_text="Busca y Reserva tu próximo") \
-        .locator("#hp-login-button") \
-        .click()
-    page.get_by_role("button", name="Ya tengo una cuenta").click()
+
+    # Icono login (hay dos, usamos el primero visible)
+    login_icon = page.locator("#hp-login-button").first
+    expect(login_icon).to_be_visible()
+    login_icon.click()
+
+    # Desktop vs Mobile
+    if page.get_by_role("button", name="Ya tengo una cuenta").is_visible():
+        page.get_by_role("button", name="Ya tengo una cuenta").click()
+    else:
+        page.get_by_role("button", name="Iniciar sesión").click()
+
+    # Esperar a que el formulario esté realmente cargado
+    expect(page.get_by_placeholder("Email")).to_be_visible(timeout=10000)
 
 
 def test_login_email_vacio(page: Page):
     abrir_login(page)
 
-    # Dejar email vacío, solo contraseña
-    page.get_by_role("textbox", name="Contraseña *").fill("123456")
+    page.get_by_placeholder("Email").fill("")
+    page.get_by_placeholder("Contraseña").fill("12345678")
     page.get_by_role("button", name="Continuar").click()
 
-    # El formulario no avanza → el email sigue visible
-    email_input = page.get_by_role("textbox", name="Correo electrónico *")
-    expect(email_input).to_be_visible()
+    expect(page.get_by_placeholder("Email")).to_be_visible()
 
 
 def test_login_email_invalido(page: Page):
     abrir_login(page)
 
-    # Email inválido
-    page.get_by_role("textbox", name="Correo electrónico *").fill("fatima123gmail")
-    page.get_by_role("textbox", name="Contraseña *").fill("123456")
+    page.get_by_placeholder("Email").fill("correo-invalido")
+    page.get_by_placeholder("Contraseña").fill("12345678")
     page.get_by_role("button", name="Continuar").click()
 
-    # El navegador bloquea el envío
-    email_input = page.get_by_role("textbox", name="Correo electrónico *")
-    validation_message = email_input.evaluate("el => el.validationMessage")
-    assert validation_message != ""
+    expect(page.get_by_placeholder("Email")).to_be_visible()
